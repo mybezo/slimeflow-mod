@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.item.ItemStack;
 
 public final class SlimeFlowRunner {
 	private SlimeFlowRunner() {
@@ -164,6 +165,8 @@ public final class SlimeFlowRunner {
 					queueOutput(row.outputSlot);
 					queueAutoSyncWait(profile);
 				}
+			} else if (type == SlimeFlowProfile.RowType.DROP) {
+				queueDrop(row.dropItemName, row.dropScope, row.dropAmount);
 			}
 
 			if (row.delay > 0) {
@@ -310,6 +313,12 @@ public final class SlimeFlowRunner {
 				}
 
 				rawPacketBudget--;
+				continue;
+			}
+
+			if (action.slotId() == -994) {
+				queueDropThrows(menu, action.itemName(), action.button(), action.itemAmount());
+				actionBurstBudget--;
 				continue;
 			}
 
@@ -474,6 +483,67 @@ public final class SlimeFlowRunner {
 		}
 
 		SlimeFlowState.clickQueue.add(SlimeFlowState.ClickAction.dynamicItem(itemName, targetSlot, amount, rowIndex));
+	}
+
+	/** scopeCode: 0 = inventory only, 1 = GUI only, 2 = both. amount 0 means drop every matching stack in full. */
+	private static void queueDropThrows(AbstractContainerMenu menu, String itemName, int scopeCode, int amount) {
+		if (menu == null || itemName == null || itemName.isEmpty()) {
+			return;
+		}
+
+		String wanted = itemName.trim().toLowerCase();
+		int playerStart = Math.max(0, menu.slots.size() - 36);
+		int remaining = amount;
+
+		for (int i = menu.slots.size() - 1; i >= 0; i--) {
+			boolean isPlayerSlot = i >= playerStart;
+
+			if (scopeCode == 0 && !isPlayerSlot) {
+				continue;
+			}
+			if (scopeCode == 1 && isPlayerSlot) {
+				continue;
+			}
+
+			ItemStack stack = menu.getSlot(i).getItem();
+			if (stack.isEmpty()) {
+				continue;
+			}
+
+			String current = stack.getHoverName().getString().trim().toLowerCase();
+			if (!current.contains(wanted) && !wanted.contains(current)) {
+				continue;
+			}
+
+			int stackCount = stack.getCount();
+			int dropCount = amount <= 0 ? stackCount : Math.min(remaining, stackCount);
+			if (dropCount <= 0) {
+				continue;
+			}
+
+			if (dropCount >= stackCount) {
+				SlimeFlowState.clickQueue.addFirst(new SlimeFlowState.ClickAction(i, 1, ContainerInput.THROW));
+			} else {
+				for (int k = 0; k < dropCount; k++) {
+					SlimeFlowState.clickQueue.addFirst(new SlimeFlowState.ClickAction(i, 0, ContainerInput.THROW));
+				}
+			}
+
+			if (amount > 0) {
+				remaining -= dropCount;
+				if (remaining <= 0) {
+					return;
+				}
+			}
+		}
+	}
+
+	private static void queueDrop(String itemName, SlimeFlowProfile.DropScope scope, int amount) {
+		if (itemName == null || itemName.isEmpty()) {
+			return;
+		}
+
+		SlimeFlowState.clickQueue.add(SlimeFlowState.ClickAction.dropItem(itemName, scope, amount));
 	}
 
 	private static void queueMultiItem(List<String> itemNames, int targetSlot, int amount, int rowIndex) {

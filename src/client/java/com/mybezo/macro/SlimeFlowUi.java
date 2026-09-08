@@ -416,6 +416,10 @@ public final class SlimeFlowUi {
 
 		newRow.outputSlot = row.outputSlot;
 
+		newRow.dropItemName = row.dropItemName;
+		newRow.dropScope = row.dropScope;
+		newRow.dropAmount = row.dropAmount;
+
 		newRow.delay = row.delay;
 
 		return newRow;

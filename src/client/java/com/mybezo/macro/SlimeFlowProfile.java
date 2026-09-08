@@ -41,7 +41,14 @@ public class SlimeFlowProfile {
 		ITEM,
 		CLICK,
 		MULTI,
-		OUTPUT
+		OUTPUT,
+		DROP
+	}
+
+	public enum DropScope {
+		INVENTORY,
+		GUI,
+		BOTH
 	}
 
 	public static class Row {
@@ -65,9 +72,26 @@ public class SlimeFlowProfile {
 
 		public int outputSlot = -1;
 
+		public String dropItemName = "";
+		public DropScope dropScope = DropScope.BOTH;
+		/** 0 means drop the whole stack every time it's found. */
+		public int dropAmount = 0;
+
 		public int delay = 0;
 
 		public Row() {
+		}
+
+		public static Row drop(String itemName, DropScope scope, int amount) {
+			Row row = new Row();
+
+			row.type = RowType.DROP;
+			row.dropItemName = itemName == null ? "" : itemName;
+			row.dropScope = scope == null ? DropScope.BOTH : scope;
+			row.dropAmount = Math.max(0, amount);
+			row.delay = 0;
+
+			return row;
 		}
 
 		public static Row move(int fromSlot, int toSlot, int amount) {

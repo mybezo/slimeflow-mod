@@ -108,13 +108,14 @@ public final class SlimeFlowEditPanel {
 		SlimeFlowUi.drawButton(client, graphics, bx + 27, by, 23, 12, "Def", SlimeFlowTheme.MUTED);
 	}
 
-	private static final String[] TYPE_LABELS = {"Move", "Item", "Click", "Multi", "Output"};
+	private static final String[] TYPE_LABELS = {"Move", "Item", "Click", "Multi", "Output", "Drop"};
 	private static final SlimeFlowState.DraftType[] TYPE_VALUES = {
 			SlimeFlowState.DraftType.MOVE,
 			SlimeFlowState.DraftType.ITEM,
 			SlimeFlowState.DraftType.CLICK,
 			SlimeFlowState.DraftType.MULTI,
-			SlimeFlowState.DraftType.OUTPUT
+			SlimeFlowState.DraftType.OUTPUT,
+			SlimeFlowState.DraftType.DROP
 	};
 	private static final int TYPE_SELECT_X = 52;
 	private static final int TYPE_SELECT_W = 78;
@@ -195,6 +196,24 @@ public final class SlimeFlowEditPanel {
 			return;
 		}
 
+		if (SlimeFlowState.draftType == SlimeFlowState.DraftType.DROP) {
+			boolean dropAll = SlimeFlowState.draftDropAmount <= 0;
+
+			graphics.text(client.font, itemShort(SlimeFlowState.draftDropItemName), x + 8, draftY + 27, itemColor(SlimeFlowState.draftDropItemName), false);
+			graphics.text(client.font, dropScopeLabel(SlimeFlowState.draftDropScope), x + 110, draftY + 27, SlimeFlowTheme.YELLOW, false);
+			graphics.text(client.font, dropAll ? "All" : "A" + SlimeFlowState.draftDropAmount, x + 160, draftY + 27, SlimeFlowTheme.TEXT, false);
+			graphics.text(client.font, "Drops on GUI open, wherever found", x + 8, draftY + 39, SlimeFlowTheme.MUTED, false);
+
+			SlimeFlowUi.drawButton(client, graphics, x + 8, draftY + 60, 31, 13, SlimeFlowState.pickMode == SlimeFlowState.PickMode.DROP_ITEM ? "P*" : "P", SlimeFlowTheme.BLUE);
+			SlimeFlowUi.drawButton(client, graphics, x + 43, draftY + 60, 32, 13, dropScopeLabel(SlimeFlowState.draftDropScope), SlimeFlowTheme.YELLOW);
+			SlimeFlowUi.drawButton(client, graphics, x + 79, draftY + 60, 14, 13, "-", dropAll ? SlimeFlowTheme.MUTED : SlimeFlowTheme.MUTED);
+			SlimeFlowUi.drawButton(client, graphics, x + 96, draftY + 60, 14, 13, "+", SlimeFlowTheme.MUTED);
+			SlimeFlowUi.drawButton(client, graphics, x + 114, draftY + 60, 28, 13, "All", dropAll ? SlimeFlowTheme.GREEN : SlimeFlowTheme.MUTED);
+			SlimeFlowUi.drawButton(client, graphics, x + 146, draftY + 60, 32, 13, "Add", canAddDrop() ? SlimeFlowTheme.GREEN : SlimeFlowTheme.MUTED);
+			return;
+		}
+
+		if (SlimeFlowState.draftType == SlimeFlowState.DraftType.MULTI) {
 		graphics.text(client.font, "I:" + SlimeFlowState.draftMultiItemNames.size(), x + 8, draftY + 25, SlimeFlowState.draftMultiItemNames.isEmpty() ? SlimeFlowTheme.MUTED : SlimeFlowTheme.GREEN, false);
 		graphics.text(client.font, slotShort("T", SlimeFlowState.draftMultiTargetSlot), x + 42, draftY + 25, slotColor(SlimeFlowState.draftMultiTargetSlot), false);
 		graphics.text(client.font, "A" + SlimeFlowState.draftMultiAmount, x + 96, draftY + 25, SlimeFlowTheme.TEXT, false);
@@ -208,6 +227,7 @@ public final class SlimeFlowEditPanel {
 		SlimeFlowUi.drawButton(client, graphics, x + 142, draftY + 60, 27, 13, "Del", SlimeFlowTheme.ORANGE);
 		SlimeFlowUi.drawButton(client, graphics, x + 173, draftY + 60, 25, 13, "Clr", SlimeFlowTheme.RED);
 		SlimeFlowUi.drawButton(client, graphics, x + 202, draftY + 60, 26, 13, "+32", SlimeFlowTheme.ACCENT);
+		}
 	}
 
 	private static int typeIndex(SlimeFlowState.DraftType type) {
@@ -479,6 +499,10 @@ public final class SlimeFlowEditPanel {
 			return clickOutputDraft(profile, x, draftY, mouseX, mouseY);
 		}
 
+		if (SlimeFlowState.draftType == SlimeFlowState.DraftType.DROP) {
+			return clickDropDraft(profile, x, draftY, mouseX, mouseY);
+		}
+
 		return clickMultiDraft(profile, x, draftY, mouseX, mouseY);
 	}
 
@@ -675,6 +699,52 @@ public final class SlimeFlowEditPanel {
 
 		return false;
 	}
+
+	private static boolean clickDropDraft(SlimeFlowProfile profile, int x, int draftY, double mouseX, double mouseY) {
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 8, draftY + 60, 31, 13)) {
+			if (SlimeFlowState.pickMode == SlimeFlowState.PickMode.DROP_ITEM) {
+				SlimeFlowState.finishPick(true);
+			} else {
+				SlimeFlowState.beginPick(SlimeFlowState.PickMode.DROP_ITEM);
+			}
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 43, draftY + 60, 32, 13)) {
+			SlimeFlowState.draftDropScope = nextDropScope(SlimeFlowState.draftDropScope);
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 79, draftY + 60, 14, 13)) {
+			SlimeFlowState.draftDropAmount = Math.max(0, SlimeFlowState.draftDropAmount - 1);
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 96, draftY + 60, 14, 13)) {
+			SlimeFlowState.draftDropAmount = Math.min(64, Math.max(1, SlimeFlowState.draftDropAmount + 1));
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 114, draftY + 60, 28, 13)) {
+			SlimeFlowState.draftDropAmount = 0;
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 146, draftY + 60, 32, 13)) {
+			if (profile.rows.size() >= MAX_ROWS || !canAddDrop()) {
+				return true;
+			}
+
+			profile.rows.add(SlimeFlowProfile.Row.drop(SlimeFlowState.draftDropItemName, SlimeFlowState.draftDropScope, SlimeFlowState.draftDropAmount));
+			SlimeFlowState.draftDropItemName = "";
+			SlimeFlowState.finishPick(true);
+			scrollToLast(profile);
+			return true;
+		}
+
+		return false;
+	}
+
 
 	private static boolean clickMultiDraft(SlimeFlowProfile profile, int x, int draftY, double mouseX, double mouseY) {
 		if (SlimeFlowUi.inside(mouseX, mouseY, x + 8, draftY + 60, 25, 13)) {
@@ -907,6 +977,17 @@ public final class SlimeFlowEditPanel {
 			return true;
 		}
 
+		if (SlimeFlowState.pickMode == SlimeFlowState.PickMode.DROP_ITEM) {
+			String itemName = SlimeFlowItemFinder.getSlotItemName(slot);
+
+			if (itemName == null || itemName.isEmpty()) {
+				return true;
+			}
+
+			SlimeFlowState.draftDropItemName = itemName;
+			return true;
+		}
+
 		return false;
 	}
 
@@ -1102,6 +1183,12 @@ public final class SlimeFlowEditPanel {
 			return "OUT O" + row.outputSlot + ">Stack";
 		}
 
+		if (type == SlimeFlowProfile.RowType.DROP) {
+			String scope = row.dropScope == SlimeFlowProfile.DropScope.INVENTORY ? "Inv" : (row.dropScope == SlimeFlowProfile.DropScope.GUI ? "Gui" : "Both");
+			String amount = row.dropAmount <= 0 ? "All" : "A" + row.dropAmount;
+			return "DR " + SlimeFlowUi.cut(row.dropItemName, 8) + " " + scope + " " + amount;
+		}
+
 		int multiCount = row.multiItemNames == null ? 0 : row.multiItemNames.size();
 		String first = multiCount <= 0 ? "" : row.multiItemNames.get(0);
 		return "MU I" + multiCount + " " + SlimeFlowUi.cut(first, 7) + ">T" + row.multiTargetSlot + " A" + row.multiAmount;
@@ -1147,6 +1234,30 @@ public final class SlimeFlowEditPanel {
 
 	private static boolean canAddOutput() {
 		return SlimeFlowState.draftOutputSlot >= 0;
+	}
+
+	private static boolean canAddDrop() {
+		return SlimeFlowState.draftDropItemName != null && !SlimeFlowState.draftDropItemName.isEmpty();
+	}
+
+	private static String dropScopeLabel(SlimeFlowProfile.DropScope scope) {
+		if (scope == SlimeFlowProfile.DropScope.INVENTORY) {
+			return "Inv";
+		}
+		if (scope == SlimeFlowProfile.DropScope.GUI) {
+			return "Gui";
+		}
+		return "Both";
+	}
+
+	private static SlimeFlowProfile.DropScope nextDropScope(SlimeFlowProfile.DropScope scope) {
+		if (scope == SlimeFlowProfile.DropScope.INVENTORY) {
+			return SlimeFlowProfile.DropScope.GUI;
+		}
+		if (scope == SlimeFlowProfile.DropScope.GUI) {
+			return SlimeFlowProfile.DropScope.BOTH;
+		}
+		return SlimeFlowProfile.DropScope.INVENTORY;
 	}
 
 	private static boolean pickMoveActive() {

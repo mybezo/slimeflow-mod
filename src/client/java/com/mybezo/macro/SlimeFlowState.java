@@ -157,6 +157,10 @@ public final class SlimeFlowState {
 
 	static int draftOutputSlot = -1;
 
+	static String draftDropItemName = "";
+	static SlimeFlowProfile.DropScope draftDropScope = SlimeFlowProfile.DropScope.BOTH;
+	static int draftDropAmount = 0;
+
 	static PickMode pickMode = PickMode.NONE;
 	static boolean pickSnapshotActive = false;
 	static SlimeFlowProfile pickSnapshotProfile = null;
@@ -275,7 +279,8 @@ public final class SlimeFlowState {
 		ITEM,
 		CLICK,
 		MULTI,
-		OUTPUT
+		OUTPUT,
+		DROP
 	}
 
 	enum PickMode {
@@ -292,7 +297,8 @@ public final class SlimeFlowState {
 		BACKPACK_SLOT,
 		BACKPACK_ITEM,
 		REFILL_KEYWORD,
-		AUTO_SELL_ITEM
+		AUTO_SELL_ITEM,
+		DROP_ITEM
 	}
 
 	static boolean hasStackSelection() {
@@ -332,6 +338,10 @@ public final class SlimeFlowState {
 		draftMultiAmount = 1;
 
 		draftOutputSlot = -1;
+
+		draftDropItemName = "";
+		draftDropScope = SlimeFlowProfile.DropScope.BOTH;
+		draftDropAmount = 0;
 
 		pickMode = PickMode.NONE;
 		clearPickSnapshot();
@@ -442,7 +452,7 @@ public final class SlimeFlowState {
 	}
 
 	static void msg(Minecraft client, String text) {
-		// Chat message dimatikan.
+		// Chat message disabled.
 	}
 
 	static record ClickAction(
@@ -473,6 +483,12 @@ public final class SlimeFlowState {
 
 		static ClickAction output(int outputSlot) {
 			return new ClickAction(-995, 0, ContainerInput.PICKUP, "", null, outputSlot, 1, -1);
+		}
+
+		/** button field carries the scope: 0 = inventory, 1 = GUI, 2 = both. itemAmount 0 means drop everything found. */
+		static ClickAction dropItem(String itemName, SlimeFlowProfile.DropScope scope, int amount) {
+			int scopeCode = scope == SlimeFlowProfile.DropScope.INVENTORY ? 0 : (scope == SlimeFlowProfile.DropScope.GUI ? 1 : 2);
+			return new ClickAction(-994, scopeCode, ContainerInput.PICKUP, itemName, null, -1, Math.max(0, amount), -1);
 		}
 	}
 }

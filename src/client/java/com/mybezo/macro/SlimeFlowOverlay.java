@@ -503,6 +503,16 @@ public final class SlimeFlowOverlay {
 					drawSlotMarker(client, graphics, sx, sy, 0x3339B9FF, 0xAA39B9FF, "I");
 					marked = true;
 				}
+				continue;
+			}
+
+			if (type == SlimeFlowProfile.RowType.DROP) {
+				if (slotItemName != null && !slotItemName.isEmpty() && row.dropItemName != null
+						&& (slotItemName.equalsIgnoreCase(row.dropItemName)
+						|| slotItemName.toLowerCase().contains(row.dropItemName.toLowerCase()))) {
+					drawSlotMarker(client, graphics, sx, sy, 0x33FF6B6B, 0xAAFF6B6B, "D");
+					marked = true;
+				}
 			}
 		}
 
