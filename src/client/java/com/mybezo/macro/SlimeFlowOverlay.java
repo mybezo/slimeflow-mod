@@ -3,6 +3,7 @@ package com.mybezo.macro;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import com.mybezo.macro.mixin.AbstractContainerScreenAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -87,7 +88,7 @@ public final class SlimeFlowOverlay {
 		screenWidth = realScreenWidth(client, screenWidth);
 		screenHeight = realScreenHeight(client, screenHeight);
 
-		if (macroOpen && SlimeFlowState.overlayMode == SlimeFlowState.OverlayMode.EDIT) {
+		if (macroOpen && (SlimeFlowState.overlayMode == SlimeFlowState.OverlayMode.EDIT || SlimeFlowState.pickMode != SlimeFlowState.PickMode.NONE)) {
 			// Real slot coordinates - stays outside the scale transform.
 			renderSlotPickHighlights(client, graphics);
 		}
@@ -386,12 +387,21 @@ public final class SlimeFlowOverlay {
 		int top = readScreenInt(screen, "topPos", false);
 		AbstractContainerMenu menu = client.player.containerMenu;
 
+		Slot hoveredSlot = mode != SlimeFlowState.PickMode.NONE
+				? ((AbstractContainerScreenAccessor) screen).slimeflow$getHoveredSlot()
+				: null;
+
 		for (int slotId = 0; slotId < menu.slots.size(); slotId++) {
 			Slot slot = menu.slots.get(slotId);
 			int sx = left + slot.x;
 			int sy = top + slot.y;
 
 			boolean marked = drawSavedRowMarker(client, graphics, slot, slotId, sx, sy);
+
+			if (hoveredSlot == slot) {
+				drawSlotMarker(client, graphics, sx, sy, 0x55FFFFFF, 0xFFFFFFFF, "");
+				marked = true;
+			}
 
 			if (SlimeFlowState.draftFromSlot == slotId) {
 				drawSlotMarker(client, graphics, sx, sy, 0x55FFC96B, 0xFFFFC96B, "F");

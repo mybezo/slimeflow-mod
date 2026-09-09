@@ -166,7 +166,9 @@ public final class SlimeFlowRunner {
 					queueAutoSyncWait(profile);
 				}
 			} else if (type == SlimeFlowProfile.RowType.DROP) {
+				queueAutoSyncWait(profile);
 				queueDrop(row.dropItemName, row.dropScope, row.dropAmount);
+				queueAutoSyncWait(profile);
 			}
 
 			if (row.delay > 0) {
