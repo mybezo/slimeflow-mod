@@ -63,6 +63,7 @@ public final class SlimeFlowBackpackRefillRunner {
 		SlimeFlowState.backpackAutoSlots.addAll(backpacks);
 		SlimeFlowState.backpackCurrentInventorySlot = -1;
 		SlimeFlowState.backpackCurrentSwappedSlot = -1;
+		SlimeFlowState.backpackAnyItemsCollected = false;
 
 		if (client.screen != null) {
 			client.player.closeContainer();
@@ -126,7 +127,7 @@ public final class SlimeFlowBackpackRefillRunner {
 		restoreTemporarySwap(client);
 
 		if (!moveToNextUsableBackpack()) {
-			stopNoResources(client);
+			stopOutOfResources(client);
 			return;
 		}
 
@@ -192,6 +193,7 @@ public final class SlimeFlowBackpackRefillRunner {
 		}
 
 		client.gameMode.handleContainerInput(menu.containerId, sourceSlot, 0, ContainerInput.QUICK_MOVE, client.player);
+		SlimeFlowState.backpackAnyItemsCollected = true;
 
 		SlimeFlowState.backpackClicks++;
 		SlimeFlowState.backpackTicks = 5;
@@ -214,7 +216,7 @@ public final class SlimeFlowBackpackRefillRunner {
 		SlimeFlowState.backpackTicks = 10;
 
 		if (!moveToNextUsableBackpack()) {
-			stopNoResources(client);
+			stopOutOfResources(client);
 		}
 	}
 
@@ -245,6 +247,18 @@ public final class SlimeFlowBackpackRefillRunner {
 
 		if (inventorySlot >= 0 && inventorySlot < DEFAULT_SCAN_LIMIT) {
 			SlimeFlowState.backpackKnownEmptySlots.add(inventorySlot);
+		}
+	}
+
+	/** Picks the right way to bail when no more backpack items are available. */
+	private static void stopOutOfResources(Minecraft client) {
+		if (SlimeFlowState.backpackAnyItemsCollected) {
+			// Already pulled some items this session (just not enough to
+			// fill the inventory) - carry on with what we have instead of
+			// aborting the whole macro.
+			finishAndRetry(client);
+		} else {
+			stopNoResources(client);
 		}
 	}
 

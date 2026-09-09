@@ -197,6 +197,7 @@ public final class SlimeFlowState {
 	static final List<Integer> backpackAutoSlots = new ArrayList<>();
 	static int backpackCurrentInventorySlot = -1;
 	static int backpackCurrentSwappedSlot = -1;
+	static boolean backpackAnyItemsCollected = false;
 	static final Set<Integer> backpackKnownEmptySlots = new HashSet<>();
 
 	static void stopOutputCollectorState() {
@@ -220,6 +221,7 @@ public final class SlimeFlowState {
 		backpackAutoSlots.clear();
 		backpackCurrentInventorySlot = -1;
 		backpackCurrentSwappedSlot = -1;
+		backpackAnyItemsCollected = false;
 	}
 
 	static void stopMacroRuntimeState() {
