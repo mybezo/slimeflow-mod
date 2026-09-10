@@ -101,7 +101,8 @@ public final class SlimeFlowListPanel {
 	private static void renderFooter(Minecraft client, GuiGraphicsExtractor graphics, int x, int y) {
 		int footerY = y + LIST_H - 18;
 
-		SlimeFlowUi.drawButton(client, graphics, x + 3, footerY, LIST_W - 6, 14, "Create", SlimeFlowTheme.BLUE);
+		SlimeFlowUi.drawButton(client, graphics, x + 3, footerY, LIST_W - 6 - 40, 14, "Create", SlimeFlowTheme.BLUE);
+		SlimeFlowUi.drawButton(client, graphics, x + LIST_W - 40, footerY, 37, 14, "Paste", SlimeFlowTheme.YELLOW);
 	}
 
 	public static boolean click(Minecraft client, int screenWidth, int screenHeight, double mouseX, double mouseY) {
@@ -186,7 +187,7 @@ public final class SlimeFlowListPanel {
 
 		int footerY = y + LIST_H - 18;
 
-		if (SlimeFlowUi.inside(mouseX, mouseY, x + 3, footerY, LIST_W - 6, 14)) {
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 3, footerY, LIST_W - 6 - 40, 14)) {
 			SlimeFlowProfile p = new SlimeFlowProfile(makeNewProfileName(), SlimeFlowState.getCurrentGuiTitle(client));
 
 			SlimeFlowState.editingProfile = p;
@@ -194,6 +195,23 @@ public final class SlimeFlowListPanel {
 			SlimeFlowState.resetDraft();
 			SlimeFlowState.overlayMode = SlimeFlowState.OverlayMode.EDIT;
 			SlimeFlowEditPanel.resetScroll();
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + LIST_W - 40, footerY, 37, 14)) {
+			SlimeFlowProfile pasted = SlimeFlowScriptShare.pasteFromClipboard(client);
+
+			if (pasted == null) {
+				SlimeFlowState.msg(client, "Clipboard has no valid SlimeFlow profile.");
+				return true;
+			}
+
+			pasted.name = makeCopyName(pasted.name);
+			pasted.autoRun = false;
+			SlimeFlowState.profiles.add(pasted);
+			SlimeFlowConfig.save();
+			scrollToBottom();
+			SlimeFlowState.msg(client, "Pasted profile \"" + pasted.name + "\".");
 			return true;
 		}
 

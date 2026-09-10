@@ -63,6 +63,7 @@ public final class SlimeFlowEditPanel {
 	private static void renderHeader(Minecraft client, GuiGraphicsExtractor graphics, int x, int y) {
 		SlimeFlowUi.text(client, graphics, "Editor", x + 6, y + 6, SlimeFlowTheme.TEXT);
 
+		SlimeFlowUi.drawButton(client, graphics, x + EDIT_W - 84, y + 4, 32, 12, "Cpy", SlimeFlowTheme.BLUE);
 		SlimeFlowUi.drawButton(client, graphics, x + EDIT_W - 50, y + 4, 14, 12, "^", SlimeFlowTheme.MUTED);
 		SlimeFlowUi.drawButton(client, graphics, x + EDIT_W - 34, y + 4, 14, 12, "v", SlimeFlowTheme.MUTED);
 		SlimeFlowUi.drawButton(client, graphics, x + EDIT_W - 18, y + 4, 14, 12, "x", SlimeFlowTheme.RED);
@@ -361,6 +362,12 @@ public final class SlimeFlowEditPanel {
 		if (SlimeFlowState.pickMode != SlimeFlowState.PickMode.NONE
 				&& SlimeFlowUi.inside(mouseX, mouseY, x + EDIT_W - 42, bottomY - 15, 34, 12)) {
 			SlimeFlowState.finishPick(true);
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + EDIT_W - 84, y + 4, 32, 12)) {
+			boolean copied = SlimeFlowScriptShare.copyToClipboard(client, profile);
+			SlimeFlowState.msg(client, copied ? "Profile copied to clipboard." : "Copy failed.");
 			return true;
 		}
 
