@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.mybezo.macro.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "AbstractContainerScreenAccessor",
+    "AbstractContainerScreenMixin",
+    "WindowAccessor",
+    "ScreenMixin",
+    "GuiMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
