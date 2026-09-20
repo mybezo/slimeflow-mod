@@ -107,6 +107,11 @@ public final class SlimeFlowState {
 	static int outputCollectContainerId = -999;
 	static final List<Integer> outputCollectSlots = new ArrayList<>();
 
+	static boolean inputWatchActive = false;
+	static int inputWatchContainerId = -999;
+	static int inputWatchDropCooldown = 0;
+	static final List<Integer> inputWatchRowIndexes = new ArrayList<>();
+
 	static int uiX = Integer.MIN_VALUE;
 	static int uiY = 45;
 	static boolean uiDragging = false;
@@ -142,6 +147,7 @@ public final class SlimeFlowState {
 	static int draftFromSlot = -1;
 	static int draftToSlot = -1;
 	static int draftAmount = 1;
+	static boolean draftLoop = false;
 
 	static int draftClickSlot = -1;
 	static int draftClickButton = 0;
@@ -206,6 +212,13 @@ public final class SlimeFlowState {
 		outputCollectSlots.clear();
 	}
 
+	static void stopInputWatchState() {
+		inputWatchActive = false;
+		inputWatchContainerId = -999;
+		inputWatchDropCooldown = 0;
+		inputWatchRowIndexes.clear();
+	}
+
 	static void stopBackpackRefillState() {
 		backpackPausedProfile = null;
 		backpackResumeProfile = null;
@@ -230,6 +243,7 @@ public final class SlimeFlowState {
 		clickQueue.clear();
 		runningProfile = null;
 		stopOutputCollectorState();
+		stopInputWatchState();
 		stopBackpackRefillState();
 		backpackKnownEmptySlots.clear();
 		autoRanThisGui = true;
@@ -326,6 +340,7 @@ public final class SlimeFlowState {
 		draftFromSlot = -1;
 		draftToSlot = -1;
 		draftAmount = 1;
+		draftLoop = false;
 
 		draftClickSlot = -1;
 		draftClickButton = 0;

@@ -78,11 +78,13 @@ public class SlimeFlowProfile {
 		public int dropAmount = 0;
 
 		public int delay = 0;
+		/** When true, this row keeps re-running whenever its target becomes empty/available again, without waiting for the GUI to reopen. */
+		public boolean loop = false;
 
 		public Row() {
 		}
 
-		public static Row drop(String itemName, DropScope scope, int amount) {
+		public static Row drop(String itemName, DropScope scope, int amount, boolean loop) {
 			Row row = new Row();
 
 			row.type = RowType.DROP;
@@ -90,11 +92,12 @@ public class SlimeFlowProfile {
 			row.dropScope = scope == null ? DropScope.BOTH : scope;
 			row.dropAmount = Math.max(0, amount);
 			row.delay = 0;
+			row.loop = loop;
 
 			return row;
 		}
 
-		public static Row move(int fromSlot, int toSlot, int amount) {
+		public static Row move(int fromSlot, int toSlot, int amount, boolean loop) {
 			Row row = new Row();
 
 			row.type = RowType.MOVE;
@@ -102,11 +105,12 @@ public class SlimeFlowProfile {
 			row.toSlot = toSlot;
 			row.amount = Math.max(1, amount);
 			row.delay = 0;
+			row.loop = loop;
 
 			return row;
 		}
 
-		public static Row click(int clickSlot, int clickButton, int clickTimes) {
+		public static Row click(int clickSlot, int clickButton, int clickTimes, boolean loop) {
 			Row row = new Row();
 
 			row.type = RowType.CLICK;
@@ -114,11 +118,12 @@ public class SlimeFlowProfile {
 			row.clickButton = clickButton;
 			row.clickTimes = Math.max(1, clickTimes);
 			row.delay = 0;
+			row.loop = loop;
 
 			return row;
 		}
 
-		public static Row item(String itemName, int itemTargetSlot, int itemAmount) {
+		public static Row item(String itemName, int itemTargetSlot, int itemAmount, boolean loop) {
 			Row row = new Row();
 
 			row.type = RowType.ITEM;
@@ -126,11 +131,12 @@ public class SlimeFlowProfile {
 			row.itemTargetSlot = itemTargetSlot;
 			row.itemAmount = Math.max(1, itemAmount);
 			row.delay = 0;
+			row.loop = loop;
 
 			return row;
 		}
 
-		public static Row multi(List<String> itemNames, int targetSlot, int amount) {
+		public static Row multi(List<String> itemNames, int targetSlot, int amount, boolean loop) {
 			Row row = new Row();
 
 			row.type = RowType.MULTI;
@@ -144,6 +150,7 @@ public class SlimeFlowProfile {
 			row.multiTargetSlot = targetSlot;
 			row.multiAmount = Math.max(1, amount);
 			row.delay = 0;
+			row.loop = loop;
 
 			return row;
 		}
