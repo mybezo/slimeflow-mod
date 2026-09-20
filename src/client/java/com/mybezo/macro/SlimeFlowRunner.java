@@ -145,7 +145,6 @@ public final class SlimeFlowRunner {
 		SlimeFlowState.clickCooldownTicks = 0;
 		SlimeFlowState.runningProfile = profile;
 		armOutputCollector(client, profile);
-		armInputWatchers(client, profile);
 
 		for (int rowIndex = Math.max(0, startRow); rowIndex < profile.rows.size(); rowIndex++) {
 			SlimeFlowProfile.Row row = profile.rows.get(rowIndex);
@@ -224,11 +223,12 @@ public final class SlimeFlowRunner {
 			return;
 		}
 
-		if (SlimeFlowState.clickQueue.isEmpty() && processInputWatchers(client, menu)) {
-			return;
-		}
-
 		if (SlimeFlowState.clickQueue.isEmpty()) {
+			if (SlimeFlowState.manualLoopActive
+					&& SlimeFlowState.manualLoopProfile != null
+					&& SlimeFlowState.manualLoopProfile == SlimeFlowState.runningProfile) {
+				scheduleProfile(client, SlimeFlowState.manualLoopProfile, true);
+			}
 			return;
 		}
 

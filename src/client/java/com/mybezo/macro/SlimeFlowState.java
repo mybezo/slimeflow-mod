@@ -102,6 +102,8 @@ public final class SlimeFlowState {
 	static int actionsPerTick = SlimeFlowProfile.MIN_ACTIONS_PER_TICK;
 	static int clickCooldownTicks = 0;
 	static SlimeFlowProfile runningProfile = null;
+	static boolean manualLoopActive = false;
+	static SlimeFlowProfile manualLoopProfile = null;
 
 	static boolean outputCollectActive = false;
 	static int outputCollectContainerId = -999;
@@ -242,6 +244,8 @@ public final class SlimeFlowState {
 		hardStoppedContainerId = getCurrentContainerId();
 		clickQueue.clear();
 		runningProfile = null;
+		manualLoopActive = false;
+		manualLoopProfile = null;
 		stopOutputCollectorState();
 		stopInputWatchState();
 		stopBackpackRefillState();

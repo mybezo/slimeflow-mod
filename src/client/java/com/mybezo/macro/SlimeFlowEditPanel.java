@@ -139,15 +139,6 @@ public final class SlimeFlowEditPanel {
 		graphics.text(client.font, "Mode", x + 16, draftY + 5, SlimeFlowTheme.BLUE, false);
 		renderTypeSelectBox(client, graphics, x, draftY);
 
-		if (SlimeFlowState.draftType != SlimeFlowState.DraftType.OUTPUT) {
-			SlimeFlowUi.drawButton(
-					client, graphics,
-					x + EDIT_W - 46, draftY + 3, 38, TYPE_SELECT_H,
-					SlimeFlowState.draftLoop ? "Loop" : "Once",
-					SlimeFlowState.draftLoop ? SlimeFlowTheme.GREEN : SlimeFlowTheme.MUTED
-			);
-		}
-
 		renderDraftBody(client, graphics, x, y, draftY);
 
 		// Draw last so it overlays the draft content below it.
@@ -505,12 +496,6 @@ public final class SlimeFlowEditPanel {
 
 		if (SlimeFlowUi.inside(mouseX, mouseY, x + TYPE_SELECT_X, draftY + 3, TYPE_SELECT_W, TYPE_SELECT_H)) {
 			SlimeFlowState.draftTypeMenuOpen = true;
-			return true;
-		}
-
-		if (SlimeFlowState.draftType != SlimeFlowState.DraftType.OUTPUT
-				&& SlimeFlowUi.inside(mouseX, mouseY, x + EDIT_W - 46, draftY + 3, 38, TYPE_SELECT_H)) {
-			SlimeFlowState.draftLoop = !SlimeFlowState.draftLoop;
 			return true;
 		}
 
