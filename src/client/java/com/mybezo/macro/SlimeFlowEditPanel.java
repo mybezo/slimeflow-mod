@@ -138,7 +138,6 @@ public final class SlimeFlowEditPanel {
 		SlimeFlowUi.iconAction(graphics, x + 8, draftY + 5, SlimeFlowTheme.BLUE);
 		graphics.text(client.font, "Mode", x + 16, draftY + 5, SlimeFlowTheme.BLUE, false);
 		renderTypeSelectBox(client, graphics, x, draftY);
-
 		renderDraftBody(client, graphics, x, y, draftY);
 
 		// Draw last so it overlays the draft content below it.
@@ -577,8 +576,7 @@ public final class SlimeFlowEditPanel {
 			profile.rows.add(SlimeFlowProfile.Row.move(
 					SlimeFlowState.draftFromSlot,
 					SlimeFlowState.draftToSlot,
-					SlimeFlowState.draftAmount,
-					SlimeFlowState.draftLoop
+					SlimeFlowState.draftAmount
 			));
 
 			SlimeFlowState.draftFromSlot = -1;
@@ -625,8 +623,7 @@ public final class SlimeFlowEditPanel {
 			profile.rows.add(SlimeFlowProfile.Row.click(
 					SlimeFlowState.draftClickSlot,
 					SlimeFlowState.draftClickButton,
-					SlimeFlowState.draftClickTimes,
-					SlimeFlowState.draftLoop
+					SlimeFlowState.draftClickTimes
 			));
 
 			SlimeFlowState.draftClickSlot = -1;
@@ -675,8 +672,7 @@ public final class SlimeFlowEditPanel {
 			profile.rows.add(SlimeFlowProfile.Row.item(
 					SlimeFlowState.draftItemName,
 					SlimeFlowState.draftItemTargetSlot,
-					SlimeFlowState.draftItemAmount,
-					SlimeFlowState.draftLoop
+					SlimeFlowState.draftItemAmount
 			));
 
 			SlimeFlowState.draftItemName = "";
@@ -754,7 +750,7 @@ public final class SlimeFlowEditPanel {
 				return true;
 			}
 
-			profile.rows.add(SlimeFlowProfile.Row.drop(SlimeFlowState.draftDropItemName, SlimeFlowState.draftDropScope, SlimeFlowState.draftDropAmount, SlimeFlowState.draftLoop));
+			profile.rows.add(SlimeFlowProfile.Row.drop(SlimeFlowState.draftDropItemName, SlimeFlowState.draftDropScope, SlimeFlowState.draftDropAmount));
 			SlimeFlowState.draftDropItemName = "";
 			SlimeFlowState.finishPick(true);
 			scrollToLast(profile);
@@ -821,8 +817,7 @@ public final class SlimeFlowEditPanel {
 			profile.rows.add(SlimeFlowProfile.Row.multi(
 					SlimeFlowState.draftMultiItemNames,
 					SlimeFlowState.draftMultiTargetSlot,
-					SlimeFlowState.draftMultiAmount,
-					SlimeFlowState.draftLoop
+					SlimeFlowState.draftMultiAmount
 			));
 
 			SlimeFlowState.draftMultiItemNames.clear();
@@ -934,8 +929,7 @@ public final class SlimeFlowEditPanel {
 				profile.rows.add(SlimeFlowProfile.Row.move(
 						SlimeFlowState.draftFromSlot,
 						SlimeFlowState.draftToSlot,
-						SlimeFlowState.draftAmount,
-						SlimeFlowState.draftLoop
+						SlimeFlowState.draftAmount
 				));
 				scrollToLast(profile);
 
@@ -954,8 +948,7 @@ public final class SlimeFlowEditPanel {
 				profile.rows.add(SlimeFlowProfile.Row.click(
 						SlimeFlowState.draftClickSlot,
 						SlimeFlowState.draftClickButton,
-						SlimeFlowState.draftClickTimes,
-						SlimeFlowState.draftLoop
+						SlimeFlowState.draftClickTimes
 				));
 				scrollToLast(profile);
 
@@ -986,8 +979,7 @@ public final class SlimeFlowEditPanel {
 				profile.rows.add(SlimeFlowProfile.Row.multi(
 						new ArrayList<>(SlimeFlowState.draftMultiItemNames),
 						SlimeFlowState.draftMultiTargetSlot,
-						SlimeFlowState.draftMultiAmount,
-						SlimeFlowState.draftLoop
+						SlimeFlowState.draftMultiAmount
 				));
 				scrollToLast(profile);
 
@@ -1035,8 +1027,7 @@ public final class SlimeFlowEditPanel {
 				profile.rows.add(SlimeFlowProfile.Row.item(
 						SlimeFlowState.draftItemName,
 						SlimeFlowState.draftItemTargetSlot,
-						SlimeFlowState.draftItemAmount,
-						SlimeFlowState.draftLoop
+						SlimeFlowState.draftItemAmount
 				));
 				scrollToLast(profile);
 
@@ -1062,8 +1053,7 @@ public final class SlimeFlowEditPanel {
 				profile.rows.add(SlimeFlowProfile.Row.drop(
 						SlimeFlowState.draftDropItemName,
 						SlimeFlowState.draftDropScope,
-						SlimeFlowState.draftDropAmount,
-						SlimeFlowState.draftLoop
+						SlimeFlowState.draftDropAmount
 				));
 				scrollToLast(profile);
 

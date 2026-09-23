@@ -65,15 +65,12 @@ public final class SlimeFlowListPanel {
 			SlimeFlowUi.fill(graphics, x + 3, rowY, LIST_W - 6, ROW_H - 2, visibleIndex % 2 == 0 ? SlimeFlowTheme.CARD : SlimeFlowTheme.CARD_DARK);
 			graphics.text(client.font, (profileIndex + 1) + "." + SlimeFlowUi.cut(profile.name, 8), x + 5, rowY + 3, SlimeFlowTheme.TEXT, false);
 
-			boolean loopingThis = SlimeFlowState.manualLoopActive && SlimeFlowState.manualLoopProfile == profile;
-
-			int bx = x + LIST_W - 98;
-			SlimeFlowUi.drawButton(client, graphics, bx, rowY + 2, 16, 11, "Run", SlimeFlowTheme.GREEN);
-			SlimeFlowUi.drawButton(client, graphics, bx + 18, rowY + 2, 16, 11, "LR", loopingThis ? SlimeFlowTheme.RED : SlimeFlowTheme.BLUE);
-			SlimeFlowUi.drawButton(client, graphics, bx + 36, rowY + 2, 13, 11, "Ed", SlimeFlowTheme.MUTED);
-			SlimeFlowUi.drawButton(client, graphics, bx + 51, rowY + 2, 13, 11, "Cp", SlimeFlowTheme.BLUE);
-			SlimeFlowUi.drawButton(client, graphics, bx + 66, rowY + 2, 19, 11, profile.autoRun ? "Auto" : "Off", profile.autoRun ? SlimeFlowTheme.GREEN : SlimeFlowTheme.RED);
-			SlimeFlowUi.drawButton(client, graphics, bx + 87, rowY + 2, 9, 11, "x", SlimeFlowTheme.RED);
+			int bx = x + LIST_W - 88;
+			SlimeFlowUi.drawButton(client, graphics, bx, rowY + 2, 18, 11, "Run", SlimeFlowTheme.GREEN);
+			SlimeFlowUi.drawButton(client, graphics, bx + 20, rowY + 2, 15, 11, "Ed", SlimeFlowTheme.MUTED);
+			SlimeFlowUi.drawButton(client, graphics, bx + 37, rowY + 2, 15, 11, "Cp", SlimeFlowTheme.BLUE);
+			SlimeFlowUi.drawButton(client, graphics, bx + 54, rowY + 2, 22, 11, profile.autoRun ? "Auto" : "Off", profile.autoRun ? SlimeFlowTheme.GREEN : SlimeFlowTheme.RED);
+			SlimeFlowUi.drawButton(client, graphics, bx + 78, rowY + 2, 10, 11, "x", SlimeFlowTheme.RED);
 		}
 	}
 
@@ -143,30 +140,16 @@ public final class SlimeFlowListPanel {
 			SlimeFlowProfile profile = SlimeFlowState.profiles.get(profileIndex);
 			int rowY = y + ROW_START_Y + visibleIndex * ROW_H;
 
-			int bx = x + LIST_W - 98;
+			int bx = x + LIST_W - 88;
 
-			if (SlimeFlowUi.inside(mouseX, mouseY, bx, rowY + 2, 16, 11)) {
+			if (SlimeFlowUi.inside(mouseX, mouseY, bx, rowY + 2, 18, 11)) {
 				if (client.player != null && client.gameMode != null) {
 					SlimeFlowRunner.scheduleProfile(client, profile, true);
 				}
 				return true;
 			}
 
-			if (SlimeFlowUi.inside(mouseX, mouseY, bx + 18, rowY + 2, 16, 11)) {
-				if (SlimeFlowState.manualLoopActive && SlimeFlowState.manualLoopProfile == profile) {
-					SlimeFlowState.manualLoopActive = false;
-					SlimeFlowState.manualLoopProfile = null;
-					SlimeFlowState.msg(client, "Loop Run stopped.");
-				} else if (client.player != null && client.gameMode != null) {
-					SlimeFlowState.manualLoopActive = true;
-					SlimeFlowState.manualLoopProfile = profile;
-					SlimeFlowRunner.scheduleProfile(client, profile, true);
-					SlimeFlowState.msg(client, "Loop Run started. Press again or F10 to stop.");
-				}
-				return true;
-			}
-
-			if (SlimeFlowUi.inside(mouseX, mouseY, bx + 36, rowY + 2, 13, 11)) {
+			if (SlimeFlowUi.inside(mouseX, mouseY, bx + 20, rowY + 2, 15, 11)) {
 				SlimeFlowState.editingProfile = SlimeFlowUi.copyProfile(profile);
 				SlimeFlowState.editingProfileIndex = profileIndex;
 				SlimeFlowState.resetDraft();
@@ -175,20 +158,20 @@ public final class SlimeFlowListPanel {
 				return true;
 			}
 
-			if (SlimeFlowUi.inside(mouseX, mouseY, bx + 51, rowY + 2, 13, 11)) {
+			if (SlimeFlowUi.inside(mouseX, mouseY, bx + 37, rowY + 2, 15, 11)) {
 				duplicateProfile(profile);
 				SlimeFlowConfig.save();
 				clampScroll();
 				return true;
 			}
 
-			if (SlimeFlowUi.inside(mouseX, mouseY, bx + 66, rowY + 2, 19, 11)) {
+			if (SlimeFlowUi.inside(mouseX, mouseY, bx + 54, rowY + 2, 22, 11)) {
 				profile.autoRun = !profile.autoRun;
 				SlimeFlowConfig.save();
 				return true;
 			}
 
-			if (SlimeFlowUi.inside(mouseX, mouseY, bx + 87, rowY + 2, 9, 11)) {
+			if (SlimeFlowUi.inside(mouseX, mouseY, bx + 78, rowY + 2, 10, 11)) {
 				stopBeforeProfileChange(client);
 				SlimeFlowState.profiles.remove(profileIndex);
 				clampScroll();

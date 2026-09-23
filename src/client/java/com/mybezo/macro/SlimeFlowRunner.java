@@ -212,7 +212,6 @@ public final class SlimeFlowRunner {
 		if (menu == null) {
 			SlimeFlowState.clickQueue.clear();
 			SlimeFlowState.stopOutputCollectorState();
-			SlimeFlowState.stopInputWatchState();
 			return;
 		}
 
@@ -224,11 +223,6 @@ public final class SlimeFlowRunner {
 		}
 
 		if (SlimeFlowState.clickQueue.isEmpty()) {
-			if (SlimeFlowState.manualLoopActive
-					&& SlimeFlowState.manualLoopProfile != null
-					&& SlimeFlowState.manualLoopProfile == SlimeFlowState.runningProfile) {
-				scheduleProfile(client, SlimeFlowState.manualLoopProfile, true);
-			}
 			return;
 		}
 
@@ -448,117 +442,6 @@ public final class SlimeFlowRunner {
 		return true;
 	}
 
-
-	private static void armInputWatchers(Minecraft client, SlimeFlowProfile profile) {
-		SlimeFlowState.inputWatchRowIndexes.clear();
-		SlimeFlowState.inputWatchActive = false;
-		SlimeFlowState.inputWatchContainerId = -999;
-		SlimeFlowState.inputWatchDropCooldown = 0;
-
-		if (client == null || client.player == null || client.player.containerMenu == null || profile == null) {
-			return;
-		}
-
-		for (int i = 0; i < profile.rows.size(); i++) {
-			SlimeFlowProfile.Row row = profile.rows.get(i);
-			if (row == null || !row.loop || row.type == SlimeFlowProfile.RowType.OUTPUT) {
-				continue;
-			}
-
-			SlimeFlowState.inputWatchRowIndexes.add(i);
-		}
-
-		SlimeFlowState.inputWatchActive = !SlimeFlowState.inputWatchRowIndexes.isEmpty();
-		SlimeFlowState.inputWatchContainerId = SlimeFlowState.inputWatchActive
-				? client.player.containerMenu.containerId
-				: -999;
-	}
-
-	/** Watches loop-enabled rows and re-queues them once their target empties out, without waiting for the GUI to reopen. */
-	private static boolean processInputWatchers(Minecraft client, AbstractContainerMenu menu) {
-		if (!SlimeFlowState.inputWatchActive || SlimeFlowState.inputWatchRowIndexes.isEmpty()) {
-			return false;
-		}
-
-		SlimeFlowProfile profile = SlimeFlowState.runningProfile;
-		if (profile == null) {
-			SlimeFlowState.stopInputWatchState();
-			return false;
-		}
-
-		if (SlimeFlowState.inputWatchContainerId != -999 && menu.containerId != SlimeFlowState.inputWatchContainerId) {
-			SlimeFlowState.stopInputWatchState();
-			return false;
-		}
-
-		if (!menu.getCarried().isEmpty()) {
-			return false;
-		}
-
-		if (SlimeFlowState.inputWatchDropCooldown > 0) {
-			SlimeFlowState.inputWatchDropCooldown--;
-		}
-
-		for (int rowIndex : SlimeFlowState.inputWatchRowIndexes) {
-			if (rowIndex < 0 || rowIndex >= profile.rows.size()) {
-				continue;
-			}
-
-			SlimeFlowProfile.Row row = profile.rows.get(rowIndex);
-			if (row == null) {
-				continue;
-			}
-
-			if (row.type == SlimeFlowProfile.RowType.DROP) {
-				if (SlimeFlowState.inputWatchDropCooldown > 0) {
-					continue;
-				}
-
-				queueDrop(row.dropItemName, row.dropScope, row.dropAmount);
-				SlimeFlowState.inputWatchDropCooldown = 30;
-				queueAutoSyncWait(profile);
-				return true;
-			}
-
-			int targetSlot = watchTargetSlot(row);
-			if (targetSlot < 0 || targetSlot >= menu.slots.size() || isSlotOccupied(menu, targetSlot)) {
-				continue;
-			}
-
-			if (row.type == SlimeFlowProfile.RowType.MOVE) {
-				queueMove(row.fromSlot, row.toSlot, row.amount);
-			} else if (row.type == SlimeFlowProfile.RowType.ITEM) {
-				queueDynamicItem(row.itemName, row.itemTargetSlot, row.itemAmount, rowIndex);
-			} else if (row.type == SlimeFlowProfile.RowType.CLICK) {
-				queueClick(row.clickSlot, row.clickButton, row.clickTimes);
-			} else if (row.type == SlimeFlowProfile.RowType.MULTI) {
-				queueMultiItem(row.multiItemNames, row.multiTargetSlot, row.multiAmount, rowIndex);
-			} else {
-				continue;
-			}
-
-			queueAutoSyncWait(profile);
-			return true;
-		}
-
-		return false;
-	}
-
-	private static int watchTargetSlot(SlimeFlowProfile.Row row) {
-		if (row.type == SlimeFlowProfile.RowType.MOVE) {
-			return row.toSlot;
-		}
-		if (row.type == SlimeFlowProfile.RowType.ITEM) {
-			return row.itemTargetSlot;
-		}
-		if (row.type == SlimeFlowProfile.RowType.CLICK) {
-			return row.clickSlot;
-		}
-		if (row.type == SlimeFlowProfile.RowType.MULTI) {
-			return row.multiTargetSlot;
-		}
-		return -1;
-	}
 
 	private static void queueMove(int fromSlot, int toSlot, int amount) {
 		if (fromSlot < 0 || toSlot < 0) {
