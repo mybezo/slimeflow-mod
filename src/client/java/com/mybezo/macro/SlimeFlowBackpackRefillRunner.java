@@ -27,6 +27,11 @@ public final class SlimeFlowBackpackRefillRunner {
 		return SlimeFlowState.backpackPausedProfile != null;
 	}
 
+	private static boolean isNetworkModeActive() {
+		SlimeFlowProfile profile = SlimeFlowState.backpackPausedProfile;
+		return profile != null && profile.backpackRefillNetworkMode;
+	}
+
 	public static boolean start(Minecraft client, SlimeFlowProfile profile, int resumeRow, String requestedItemName) {
 		if (client == null || client.player == null || client.gameMode == null || profile == null) {
 			return false;
@@ -192,7 +197,9 @@ public final class SlimeFlowBackpackRefillRunner {
 			return;
 		}
 
-		client.gameMode.handleContainerInput(menu.containerId, sourceSlot, 0, ContainerInput.QUICK_MOVE, client.player);
+		int takeButton = isNetworkModeActive() ? 1 : 0;
+
+		client.gameMode.handleContainerInput(menu.containerId, sourceSlot, takeButton, ContainerInput.QUICK_MOVE, client.player);
 		SlimeFlowState.backpackAnyItemsCollected = true;
 
 		SlimeFlowState.backpackClicks++;

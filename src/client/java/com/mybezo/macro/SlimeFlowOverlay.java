@@ -788,6 +788,10 @@ public final class SlimeFlowOverlay {
 			return SlimeFlowKeybindPanel.keyPressed(keyCode, scanCode, modifiers);
 		}
 
+		if (SlimeFlowState.overlayMode == SlimeFlowState.OverlayMode.EDIT) {
+			return SlimeFlowEditPanel.keyPressed(keyCode, scanCode, modifiers);
+		}
+
 		return false;
 	}
 
@@ -806,6 +810,10 @@ public final class SlimeFlowOverlay {
 
 		if (SlimeFlowState.overlayMode == SlimeFlowState.OverlayMode.AUTO_COMMAND) {
 			return SlimeFlowAutoCommandPanel.charTyped(chr, modifiers);
+		}
+
+		if (SlimeFlowState.overlayMode == SlimeFlowState.OverlayMode.EDIT) {
+			return SlimeFlowEditPanel.charTyped(chr, modifiers);
 		}
 
 		return false;

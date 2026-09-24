@@ -161,6 +161,9 @@ public final class SlimeFlowState {
 	static SlimeFlowProfile.DropScope draftDropScope = SlimeFlowProfile.DropScope.BOTH;
 	static int draftDropAmount = 0;
 
+	static boolean editingProfileName = false;
+	static String profileNameDraft = "";
+
 	static PickMode pickMode = PickMode.NONE;
 	static boolean pickSnapshotActive = false;
 	static SlimeFlowProfile pickSnapshotProfile = null;
@@ -347,6 +350,9 @@ public final class SlimeFlowState {
 
 		pickMode = PickMode.NONE;
 		clearPickSnapshot();
+
+		editingProfileName = false;
+		profileNameDraft = "";
 	}
 
 	static void beginPick(PickMode mode) {

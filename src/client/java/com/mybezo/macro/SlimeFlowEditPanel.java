@@ -2,6 +2,8 @@ package com.mybezo.macro;
 
 import com.mybezo.macro.mixin.AbstractContainerScreenAccessor;
 
+import org.lwjgl.glfw.GLFW;
+
 import java.util.ArrayList;
 
 import net.minecraft.client.Minecraft;
@@ -82,8 +84,20 @@ public final class SlimeFlowEditPanel {
 		SlimeFlowUi.cutCorners(graphics, x + 4, infoY, EDIT_W - 8, INFO_H, SlimeFlowTheme.WINDOW);
 
 		SlimeFlowUi.iconInfo(graphics, x + 8, infoY + 5, SlimeFlowTheme.BLUE);
-		SlimeFlowUi.text(client, graphics, "Name: " + SlimeFlowUi.cut(profile.name, 13), x + 16, infoY + 5, SlimeFlowTheme.TEXT);
-		SlimeFlowUi.drawButtonRounded(client, graphics, x + EDIT_W - 34, infoY + 3, 26, 12, "NM", SlimeFlowTheme.MUTED, SlimeFlowTheme.BG_SOFT);
+
+		if (SlimeFlowState.editingProfileName) {
+			SlimeFlowUi.fill(graphics, x + 15, infoY + 1, EDIT_W - 15 - 40, 13, 0x5520442C);
+			SlimeFlowUi.border(graphics, x + 15, infoY + 1, EDIT_W - 15 - 40, 13, SlimeFlowTheme.GREEN);
+			String draft = SlimeFlowState.profileNameDraft == null ? "" : SlimeFlowState.profileNameDraft;
+			SlimeFlowUi.text(client, graphics, SlimeFlowUi.cut(draft, 20) + "_", x + 18, infoY + 5, SlimeFlowTheme.GREEN);
+		} else {
+			SlimeFlowUi.text(client, graphics, "Name: " + SlimeFlowUi.cut(profile.name, 13), x + 16, infoY + 5, SlimeFlowTheme.TEXT);
+		}
+
+		if (!SlimeFlowState.editingProfileName) {
+			SlimeFlowUi.drawButtonRounded(client, graphics, x + EDIT_W - 64, infoY + 3, 28, 12, "Auto", SlimeFlowTheme.MUTED, SlimeFlowTheme.BG_SOFT);
+		}
+		SlimeFlowUi.drawButtonRounded(client, graphics, x + EDIT_W - 34, infoY + 3, 26, 12, SlimeFlowState.editingProfileName ? "OK" : "Rn", SlimeFlowState.editingProfileName ? SlimeFlowTheme.GREEN : SlimeFlowTheme.MUTED, SlimeFlowTheme.BG_SOFT);
 
 		SlimeFlowUi.text(client, graphics, "Gui: " + SlimeFlowUi.cut(profile.guiTitle, 24), x + 8, infoY + 17, SlimeFlowTheme.MUTED);
 
@@ -103,7 +117,10 @@ public final class SlimeFlowEditPanel {
 
 		SlimeFlowUi.drawToggleChip(graphics, x + 8, infoY + 42, profile.backpackRefillEnabled);
 		SlimeFlowUi.text(client, graphics, "Refill", x + 22, infoY + 41, SlimeFlowTheme.MUTED);
-		SlimeFlowUi.text(client, graphics, "Bag:" + SlimeFlowUi.cut(SlimeFlowBackpackRefillRunner.refillKeywordText(profile), 12), x + 60, infoY + 41, SlimeFlowTheme.MUTED);
+		SlimeFlowUi.text(client, graphics, "Bag:" + SlimeFlowUi.cut(SlimeFlowBackpackRefillRunner.refillKeywordText(profile), 10), x + 60, infoY + 41, SlimeFlowTheme.MUTED);
+
+		SlimeFlowUi.drawToggleChip(graphics, x + 155, infoY + 42, profile.backpackRefillNetworkMode);
+		SlimeFlowUi.text(client, graphics, "Net", x + 169, infoY + 41, SlimeFlowTheme.MUTED);
 
 		// Settings group ends here.
 		graphics.fill(x + 6, infoY + 50, x + EDIT_W - 6, infoY + 51, SlimeFlowTheme.HAIRLINE);
@@ -363,6 +380,13 @@ public final class SlimeFlowEditPanel {
 		}
 
 		int bottomY = y + h - 22;
+		int infoYForName = y + INFO_Y;
+
+		if (SlimeFlowState.editingProfileName
+				&& !SlimeFlowUi.inside(mouseX, mouseY, x + 15, infoYForName + 1, EDIT_W - 15 - 40, 13)
+				&& !SlimeFlowUi.inside(mouseX, mouseY, x + EDIT_W - 34, infoYForName + 3, 26, 12)) {
+			commitProfileNameEdit(client, profile);
+		}
 
 		if (SlimeFlowState.pickMode != SlimeFlowState.PickMode.NONE
 				&& SlimeFlowUi.inside(mouseX, mouseY, x + EDIT_W - 42, bottomY - 15, 34, 12)) {
@@ -437,8 +461,22 @@ public final class SlimeFlowEditPanel {
 		int bx = x + 8;
 		int by = infoY + 53;
 
-		if (SlimeFlowUi.inside(mouseX, mouseY, x + EDIT_W - 34, infoY + 3, 26, 12)) {
+		if (!SlimeFlowState.editingProfileName && SlimeFlowUi.inside(mouseX, mouseY, x + EDIT_W - 64, infoY + 3, 28, 12)) {
 			renameProfile(client, profile);
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + EDIT_W - 34, infoY + 3, 26, 12)) {
+			if (SlimeFlowState.editingProfileName) {
+				commitProfileNameEdit(client, profile);
+			} else {
+				beginProfileNameEdit(profile);
+			}
+			return true;
+		}
+
+		if (!SlimeFlowState.editingProfileName && SlimeFlowUi.inside(mouseX, mouseY, x + 15, infoY + 1, EDIT_W - 15 - 70, 13)) {
+			beginProfileNameEdit(profile);
 			return true;
 		}
 
@@ -452,6 +490,11 @@ public final class SlimeFlowEditPanel {
 			profile.backpackSlots.clear();
 			profile.backpackRefillItemName = "";
 			SlimeFlowState.backpackKnownEmptySlots.clear();
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 155, infoY + 40, 42, 12)) {
+			profile.backpackRefillNetworkMode = !profile.backpackRefillNetworkMode;
 			return true;
 		}
 
@@ -1184,6 +1227,78 @@ public final class SlimeFlowEditPanel {
 		SlimeFlowState.editingProfileIndex = -1;
 		SlimeFlowState.resetDraft();
 		rowScroll = 0;
+	}
+
+	private static void beginProfileNameEdit(SlimeFlowProfile profile) {
+		SlimeFlowState.finishPick(true);
+		SlimeFlowState.editingProfileName = true;
+		SlimeFlowState.profileNameDraft = profile.name == null ? "" : profile.name;
+	}
+
+	private static void commitProfileNameEdit(Minecraft client, SlimeFlowProfile profile) {
+		String next = SlimeFlowState.profileNameDraft == null ? "" : SlimeFlowState.profileNameDraft.trim();
+
+		SlimeFlowState.editingProfileName = false;
+		SlimeFlowState.profileNameDraft = "";
+
+		if (next.isEmpty()) {
+			return;
+		}
+
+		int number = 2;
+		String base = next;
+		while (nameExists(next, profile)) {
+			next = base + number;
+			number++;
+		}
+
+		profile.name = next;
+	}
+
+	private static void cancelProfileNameEdit() {
+		SlimeFlowState.editingProfileName = false;
+		SlimeFlowState.profileNameDraft = "";
+	}
+
+	public static boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (!SlimeFlowState.editingProfileName) {
+			return false;
+		}
+
+		if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+			commitProfileNameEdit(Minecraft.getInstance(), SlimeFlowState.editingProfile);
+			return true;
+		}
+
+		if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+			cancelProfileNameEdit();
+			return true;
+		}
+
+		if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+			String value = SlimeFlowState.profileNameDraft;
+			if (value != null && !value.isEmpty()) {
+				SlimeFlowState.profileNameDraft = value.substring(0, value.length() - 1);
+			}
+			return true;
+		}
+
+		return true;
+	}
+
+	public static boolean charTyped(char chr, int modifiers) {
+		if (!SlimeFlowState.editingProfileName) {
+			return false;
+		}
+
+		if (chr >= 32 && chr != 127) {
+			String value = SlimeFlowState.profileNameDraft == null ? "" : SlimeFlowState.profileNameDraft;
+			if (value.length() < 24) {
+				SlimeFlowState.profileNameDraft = value + chr;
+			}
+		}
+
+		return true;
 	}
 
 	private static void renameProfile(Minecraft client, SlimeFlowProfile profile) {

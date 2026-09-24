@@ -374,6 +374,7 @@ public final class SlimeFlowUi {
 		p.actionsPerTick = SlimeFlowProfile.normalizeActionsPerTick(old.actionsPerTick);
 		p.outputCollectLoop = old.outputCollectLoop;
 		p.backpackRefillEnabled = old.backpackRefillEnabled;
+		p.backpackRefillNetworkMode = old.backpackRefillNetworkMode;
 		p.backpackRefillItemName = old.backpackRefillItemName;
 
 		if (old.backpackRefillKeywords != null) {
