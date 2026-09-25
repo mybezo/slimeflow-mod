@@ -375,6 +375,7 @@ public final class SlimeFlowUi {
 		p.outputCollectLoop = old.outputCollectLoop;
 		p.backpackRefillEnabled = old.backpackRefillEnabled;
 		p.backpackRefillNetworkMode = old.backpackRefillNetworkMode;
+		p.spamLoopDelay = old.spamLoopDelay;
 		p.backpackRefillItemName = old.backpackRefillItemName;
 
 		if (old.backpackRefillKeywords != null) {

@@ -642,6 +642,17 @@ public final class SlimeFlowOverlay {
 
 			// Otherwise, right click only adjusts Spd/APT on the Editor panel.
 			if (!macroOpen || SlimeFlowState.overlayMode != SlimeFlowState.OverlayMode.EDIT) {
+				if (macroOpen && SlimeFlowState.overlayMode == SlimeFlowState.OverlayMode.LIST) {
+					int lrw = realScreenWidth(client, screenWidth);
+					int lrh = realScreenHeight(client, screenHeight);
+					int lvw = (int) (lrw / UI_SCALE);
+					int lvh = (int) (lrh / UI_SCALE);
+					double lMouseX = mouseX / UI_SCALE;
+					double lMouseY = mouseY / UI_SCALE;
+
+					return SlimeFlowListPanel.rightClick(client, lvw, lvh, lMouseX, lMouseY);
+				}
+
 				return false;
 			}
 

@@ -66,7 +66,8 @@ public final class SlimeFlowListPanel {
 			graphics.text(client.font, (profileIndex + 1) + "." + SlimeFlowUi.cut(profile.name, 8), x + 5, rowY + 3, SlimeFlowTheme.TEXT, false);
 
 			int bx = x + LIST_W - 88;
-			SlimeFlowUi.drawButton(client, graphics, bx, rowY + 2, 18, 11, "Run", SlimeFlowTheme.GREEN);
+			boolean spamming = SlimeFlowState.spamRunProfile == profile;
+			SlimeFlowUi.drawButton(client, graphics, bx, rowY + 2, 18, 11, spamming ? "..." : "Run", spamming ? SlimeFlowTheme.YELLOW : SlimeFlowTheme.GREEN);
 			SlimeFlowUi.drawButton(client, graphics, bx + 20, rowY + 2, 15, 11, "Ed", SlimeFlowTheme.MUTED);
 			SlimeFlowUi.drawButton(client, graphics, bx + 37, rowY + 2, 15, 11, "Cp", SlimeFlowTheme.BLUE);
 			SlimeFlowUi.drawButton(client, graphics, bx + 54, rowY + 2, 22, 11, profile.autoRun ? "Auto" : "Off", profile.autoRun ? SlimeFlowTheme.GREEN : SlimeFlowTheme.RED);
@@ -103,6 +104,38 @@ public final class SlimeFlowListPanel {
 
 		SlimeFlowUi.drawButton(client, graphics, x + 3, footerY, LIST_W - 6 - 40, 14, "Create", SlimeFlowTheme.BLUE);
 		SlimeFlowUi.drawButton(client, graphics, x + LIST_W - 40, footerY, 37, 14, "Paste", SlimeFlowTheme.YELLOW);
+	}
+
+	public static boolean rightClick(Minecraft client, int screenWidth, int screenHeight, double mouseX, double mouseY) {
+		int x = SlimeFlowUi.panelX(screenWidth, screenHeight, LIST_W, LIST_H);
+		int y = SlimeFlowUi.panelY(screenWidth, screenHeight, LIST_W, LIST_H);
+
+		for (int visibleIndex = 0; visibleIndex < LIST_VISIBLE_ROWS; visibleIndex++) {
+			int profileIndex = listScroll + visibleIndex;
+
+			if (profileIndex >= SlimeFlowState.profiles.size()) {
+				break;
+			}
+
+			SlimeFlowProfile profile = SlimeFlowState.profiles.get(profileIndex);
+			int rowY = y + ROW_START_Y + visibleIndex * ROW_H;
+			int bx = x + LIST_W - 88;
+
+			if (SlimeFlowUi.inside(mouseX, mouseY, bx, rowY + 2, 18, 11)) {
+				if (SlimeFlowState.spamRunProfile == profile) {
+					SlimeFlowState.spamRunProfile = null;
+					SlimeFlowState.spamRerunDelayTicks = 0;
+				} else if (client.player != null && client.gameMode != null) {
+					SlimeFlowState.spamRunProfile = profile;
+					SlimeFlowState.spamRerunDelayTicks = 0;
+					SlimeFlowRunner.scheduleProfile(client, profile, true);
+				}
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static boolean click(Minecraft client, int screenWidth, int screenHeight, double mouseX, double mouseY) {

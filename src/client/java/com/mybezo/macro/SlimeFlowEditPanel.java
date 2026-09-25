@@ -122,6 +122,9 @@ public final class SlimeFlowEditPanel {
 		SlimeFlowUi.drawToggleChip(graphics, x + 155, infoY + 42, profile.backpackRefillNetworkMode);
 		SlimeFlowUi.text(client, graphics, "Net", x + 169, infoY + 41, SlimeFlowTheme.MUTED);
 
+		SlimeFlowUi.border(graphics, x + 196, infoY + 40, 30, 11, 0x66FFD36B);
+		SlimeFlowUi.text(client, graphics, "SR:" + profile.spamLoopDelay, x + 199, infoY + 41, SlimeFlowTheme.YELLOW);
+
 		// Settings group ends here.
 		graphics.fill(x + 6, infoY + 50, x + EDIT_W - 6, infoY + 51, SlimeFlowTheme.HAIRLINE);
 
@@ -364,6 +367,11 @@ public final class SlimeFlowEditPanel {
 			return true;
 		}
 
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 196, infoY + 40, 30, 11)) {
+			profile.spamLoopDelay = Math.max(0, profile.spamLoopDelay - 1);
+			return true;
+		}
+
 		return false;
 	}
 
@@ -505,6 +513,11 @@ public final class SlimeFlowEditPanel {
 
 		if (SlimeFlowUi.inside(mouseX, mouseY, x + 84, infoY + 28, 33, 11)) {
 			profile.actionsPerTick = SlimeFlowProfile.normalizeActionsPerTick(profile.actionsPerTick + aptStep(profile.actionsPerTick));
+			return true;
+		}
+
+		if (SlimeFlowUi.inside(mouseX, mouseY, x + 196, infoY + 40, 30, 11)) {
+			profile.spamLoopDelay = Math.min(200, profile.spamLoopDelay + 1);
 			return true;
 		}
 
@@ -1129,6 +1142,7 @@ public final class SlimeFlowEditPanel {
 
 		profile.speed = Math.max(0, Math.min(20, profile.speed));
 		profile.actionsPerTick = SlimeFlowProfile.normalizeActionsPerTick(profile.actionsPerTick);
+		profile.spamLoopDelay = Math.max(0, Math.min(200, profile.spamLoopDelay));
 
 		if (SlimeFlowState.editingProfileIndex >= 0) {
 			SlimeFlowState.profiles.set(SlimeFlowState.editingProfileIndex, profile);

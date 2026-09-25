@@ -16,6 +16,7 @@ public class SlimeFlowProfile {
 
 	public boolean backpackRefillEnabled = false;
 	public boolean backpackRefillNetworkMode = false;
+	public int spamLoopDelay = 5;
 	public List<Integer> backpackSlots = new ArrayList<>();
 	public String backpackRefillItemName = "";
 	public List<String> backpackRefillKeywords = new ArrayList<>();

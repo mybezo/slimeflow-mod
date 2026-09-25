@@ -223,6 +223,17 @@ public final class SlimeFlowRunner {
 		}
 
 		if (SlimeFlowState.clickQueue.isEmpty()) {
+			if (SlimeFlowState.spamRunProfile != null && SlimeFlowState.spamRunProfile == SlimeFlowState.runningProfile) {
+				if (SlimeFlowState.spamRerunDelayTicks > 0) {
+					SlimeFlowState.spamRerunDelayTicks--;
+				} else if (SlimeFlowState.profiles.contains(SlimeFlowState.spamRunProfile)) {
+					scheduleProfileFromRow(client, SlimeFlowState.spamRunProfile, 0, true);
+					SlimeFlowState.spamRerunDelayTicks = Math.max(0, SlimeFlowState.spamRunProfile.spamLoopDelay);
+				} else {
+					SlimeFlowState.spamRunProfile = null;
+				}
+			}
+
 			return;
 		}
 

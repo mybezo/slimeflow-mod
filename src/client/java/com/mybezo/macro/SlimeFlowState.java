@@ -103,6 +103,9 @@ public final class SlimeFlowState {
 	static int clickCooldownTicks = 0;
 	static SlimeFlowProfile runningProfile = null;
 
+	static SlimeFlowProfile spamRunProfile = null;
+	static int spamRerunDelayTicks = 0;
+
 	static boolean outputCollectActive = false;
 	static int outputCollectContainerId = -999;
 	static final List<Integer> outputCollectSlots = new ArrayList<>();
@@ -232,6 +235,8 @@ public final class SlimeFlowState {
 		hardStoppedContainerId = getCurrentContainerId();
 		clickQueue.clear();
 		runningProfile = null;
+		spamRunProfile = null;
+		spamRerunDelayTicks = 0;
 		stopOutputCollectorState();
 		stopBackpackRefillState();
 		backpackKnownEmptySlots.clear();
