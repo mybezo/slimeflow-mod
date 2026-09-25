@@ -278,7 +278,7 @@ public final class SlimeFlowBackpackRefillRunner {
 		}
 
 		SlimeFlowStackRunner.stop(client);
-		SlimeFlowState.stopMacroRuntimeState();
+		SlimeFlowState.stopMacroRuntimeState("no more refill items found (backpack/network source empty)");
 		stopOnlyState();
 	}
 

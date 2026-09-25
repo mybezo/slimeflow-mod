@@ -231,6 +231,13 @@ public final class SlimeFlowState {
 	}
 
 	static void stopMacroRuntimeState() {
+		stopMacroRuntimeState(null);
+	}
+
+	static void stopMacroRuntimeState(String reason) {
+		boolean wasSpamming = spamRunProfile != null;
+		String spammedName = wasSpamming ? spamRunProfile.name : null;
+
 		macroHardStopped = true;
 		hardStoppedContainerId = getCurrentContainerId();
 		clickQueue.clear();
@@ -245,6 +252,26 @@ public final class SlimeFlowState {
 		lastContainerId = -999;
 		pickMode = PickMode.NONE;
 		clearPickSnapshot();
+
+		if (wasSpamming) {
+			notifySpamStopped(spammedName, reason);
+		}
+	}
+
+	/** Client-side only hint (not sent to the server) so a spam-run loop stopping is never silent. */
+	private static void notifySpamStopped(String profileName, String reason) {
+		Minecraft client = Minecraft.getInstance();
+
+		if (client == null || client.player == null) {
+			return;
+		}
+
+		String text = "SlimeFlow: spam run \"" + profileName + "\" stopped"
+				+ (reason == null || reason.isEmpty() ? "." : " (" + reason + ").");
+
+		// overlay=false: goes to the chat log (stays on screen, scrollable), not the actionbar.
+		// This is purely client-side rendering - nothing is sent to the server.
+		client.player.displayClientMessage(net.minecraft.network.chat.Component.literal(text), false);
 	}
 
 	static void clearHardStop() {

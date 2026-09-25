@@ -298,13 +298,13 @@ public final class SlimeFlowListPanel {
 
 	private static void stopBeforeProfileChange(Minecraft client) {
 		if (client == null || client.player == null || client.gameMode == null) {
-			SlimeFlowState.stopMacroRuntimeState();
+			SlimeFlowState.stopMacroRuntimeState("stopped by player");
 			return;
 		}
 
 		SlimeFlowStackRunner.stop(client);
 		SlimeFlowBackpackRefillRunner.stopFromButton(client);
-		SlimeFlowState.stopMacroRuntimeState();
+		SlimeFlowState.stopMacroRuntimeState("stopped by player (Stop/Edit/Delete/Copy button)");
 	}
 
 	private static void duplicateProfile(SlimeFlowProfile source) {
