@@ -471,7 +471,17 @@ public final class SlimeFlowStackRunner {
 
 	private static int getRecordedYStep(int index) {
 		int height = Math.max(1, SlimeFlowState.stackLimit);
-		return height <= 0 ? 0 : index % height;
+
+		if (height <= 0) {
+			return 0;
+		}
+
+		int columnIndex = index / height;
+		int yStep = index % height;
+
+		// Zigzag: even machine index goes bottom-to-top, odd goes top-to-bottom, so we never
+		// have to fly all the way back down before starting the next recorded machine.
+		return (columnIndex % 2 == 0) ? yStep : (height - 1 - yStep);
 	}
 
 	private static boolean moveToTargetYAndReach(Minecraft client, BlockPos targetPos) {
