@@ -9,6 +9,6 @@ public final class SlimeFlowControl {
 	public static void stopAll(Minecraft client) {
 		SlimeFlowBackpackRefillRunner.stopFromButton(client);
 		SlimeFlowStackRunner.stop(client);
-		SlimeFlowState.stopMacroRuntimeState("stopped by player (Stop All key)");
+		SlimeFlowState.stopMacroRuntimeState();
 	}
 }

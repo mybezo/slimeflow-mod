@@ -83,7 +83,7 @@ public final class SlimeFlowRunner {
 
 		if (SlimeFlowState.backpackResumePending && SlimeFlowState.backpackResumeProfile != null) {
 			if (!SlimeFlowState.profiles.contains(SlimeFlowState.backpackResumeProfile)) {
-				SlimeFlowState.stopMacroRuntimeState("profile was removed while paused for a backpack/network refill");
+				SlimeFlowState.stopMacroRuntimeState();
 				return;
 			}
 
@@ -223,17 +223,6 @@ public final class SlimeFlowRunner {
 		}
 
 		if (SlimeFlowState.clickQueue.isEmpty()) {
-			if (SlimeFlowState.spamRunProfile != null && SlimeFlowState.spamRunProfile == SlimeFlowState.runningProfile) {
-				if (SlimeFlowState.spamRerunDelayTicks > 0) {
-					SlimeFlowState.spamRerunDelayTicks--;
-				} else if (SlimeFlowState.profiles.contains(SlimeFlowState.spamRunProfile)) {
-					scheduleProfileFromRow(client, SlimeFlowState.spamRunProfile, 0, true);
-					SlimeFlowState.spamRerunDelayTicks = Math.max(0, SlimeFlowState.spamRunProfile.spamLoopDelay);
-				} else {
-					SlimeFlowState.spamRunProfile = null;
-				}
-			}
-
 			return;
 		}
 
@@ -266,7 +255,7 @@ public final class SlimeFlowRunner {
 			if (isRowStartSentinel(action) && !menu.getCarried().isEmpty()) {
 				// Cursor stuck from a previous row (target likely rejected it) - stop instead of risking further corruption.
 				SlimeFlowState.clickQueue.clear();
-				SlimeFlowState.stopMacroRuntimeState("item got stuck on cursor, target slot likely full/rejected it");
+				SlimeFlowState.stopMacroRuntimeState();
 				SlimeFlowState.msg(client, "Macro stopped: an item got stuck on the cursor (target slot may have rejected it).");
 				return;
 			}

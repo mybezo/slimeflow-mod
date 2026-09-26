@@ -69,20 +69,8 @@ public final class SlimeFlowOverlay {
 			int screenWidth,
 			int screenHeight
 	) {
-		if (client == null || SlimeFlowState.noticeTicksLeft <= 0 || SlimeFlowState.noticeText == null) {
-			return;
-		}
-
-		String text = SlimeFlowState.noticeText;
-		int textW = SlimeFlowUi.textWidth(client, text);
-		int boxW = textW + 12;
-		int boxH = 14;
-		int x = (screenWidth - boxW) / 2;
-		int y = 10;
-
-		SlimeFlowUi.fill(graphics, x, y, boxW, boxH, 0xC0101014);
-		SlimeFlowUi.border(graphics, x, y, boxW, boxH, 0xFFFFD36B);
-		SlimeFlowUi.text(client, graphics, text, x + 6, y + 3, SlimeFlowTheme.YELLOW);
+		// SlimeFlow 26.1.2: HUD only renders in click mode (F12) or over an open GUI.
+		return;
 	}
 
 	public static void render(
@@ -654,17 +642,6 @@ public final class SlimeFlowOverlay {
 
 			// Otherwise, right click only adjusts Spd/APT on the Editor panel.
 			if (!macroOpen || SlimeFlowState.overlayMode != SlimeFlowState.OverlayMode.EDIT) {
-				if (macroOpen && SlimeFlowState.overlayMode == SlimeFlowState.OverlayMode.LIST) {
-					int lrw = realScreenWidth(client, screenWidth);
-					int lrh = realScreenHeight(client, screenHeight);
-					int lvw = (int) (lrw / UI_SCALE);
-					int lvh = (int) (lrh / UI_SCALE);
-					double lMouseX = mouseX / UI_SCALE;
-					double lMouseY = mouseY / UI_SCALE;
-
-					return SlimeFlowListPanel.rightClick(client, lvw, lvh, lMouseX, lMouseY);
-				}
-
 				return false;
 			}
 

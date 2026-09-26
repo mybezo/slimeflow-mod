@@ -103,9 +103,6 @@ public final class SlimeFlowState {
 	static int clickCooldownTicks = 0;
 	static SlimeFlowProfile runningProfile = null;
 
-	static SlimeFlowProfile spamRunProfile = null;
-	static int spamRerunDelayTicks = 0;
-
 	static boolean outputCollectActive = false;
 	static int outputCollectContainerId = -999;
 	static final List<Integer> outputCollectSlots = new ArrayList<>();
@@ -230,24 +227,11 @@ public final class SlimeFlowState {
 		backpackAnyItemsCollected = false;
 	}
 
-	/** Notice banner drawn by our own HUD renderer (renderGameplayHud) - not vanilla chat, so no risk of a version-mismatched API. */
-	static String noticeText = null;
-	static int noticeTicksLeft = 0;
-
 	static void stopMacroRuntimeState() {
-		stopMacroRuntimeState(null);
-	}
-
-	static void stopMacroRuntimeState(String reason) {
-		boolean wasSpamming = spamRunProfile != null;
-		String spammedName = wasSpamming ? spamRunProfile.name : null;
-
 		macroHardStopped = true;
 		hardStoppedContainerId = getCurrentContainerId();
 		clickQueue.clear();
 		runningProfile = null;
-		spamRunProfile = null;
-		spamRerunDelayTicks = 0;
 		stopOutputCollectorState();
 		stopBackpackRefillState();
 		backpackKnownEmptySlots.clear();
@@ -256,23 +240,6 @@ public final class SlimeFlowState {
 		lastContainerId = -999;
 		pickMode = PickMode.NONE;
 		clearPickSnapshot();
-
-		if (wasSpamming) {
-			notifySpamStopped(spammedName, reason);
-		}
-	}
-
-	/** Queues a banner our own renderer shows for a few seconds (see SlimeFlowOverlay.renderGameplayHud). */
-	private static void notifySpamStopped(String profileName, String reason) {
-		noticeText = "SlimeFlow: spam run \"" + profileName + "\" stopped"
-				+ (reason == null || reason.isEmpty() ? "." : " (" + reason + ").");
-		noticeTicksLeft = 20 * 10;
-	}
-
-	static void tickNotice() {
-		if (noticeTicksLeft > 0) {
-			noticeTicksLeft--;
-		}
 	}
 
 	static void clearHardStop() {

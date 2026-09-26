@@ -10,9 +10,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public final class SlimeFlowStackRunner {
-	private static final int ACTION_DELAY = 10;
-	private static final int GUI_CLOSE_DELAY = 16;
-	private static final int CLICK_DELAY = 10;
+	private static final int ACTION_DELAY = 8;
+	private static final int GUI_CLOSE_DELAY = 12;
+	private static final int CLICK_DELAY = 8;
 	private static final int FAIL_TIMEOUT = 70;
 	private static final int CLOSE_WAIT_TIMEOUT = 40;
 
