@@ -69,8 +69,20 @@ public final class SlimeFlowOverlay {
 			int screenWidth,
 			int screenHeight
 	) {
-		// SlimeFlow 26.1.2: HUD only renders in click mode (F12) or over an open GUI.
-		return;
+		if (client == null || SlimeFlowState.noticeTicksLeft <= 0 || SlimeFlowState.noticeText == null) {
+			return;
+		}
+
+		String text = SlimeFlowState.noticeText;
+		int textW = SlimeFlowUi.textWidth(client, text);
+		int boxW = textW + 12;
+		int boxH = 14;
+		int x = (screenWidth - boxW) / 2;
+		int y = 10;
+
+		SlimeFlowUi.fill(graphics, x, y, boxW, boxH, 0xC0101014);
+		SlimeFlowUi.border(graphics, x, y, boxW, boxH, 0xFFFFD36B);
+		SlimeFlowUi.text(client, graphics, text, x + 6, y + 3, SlimeFlowTheme.YELLOW);
 	}
 
 	public static void render(

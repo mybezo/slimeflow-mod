@@ -230,6 +230,10 @@ public final class SlimeFlowState {
 		backpackAnyItemsCollected = false;
 	}
 
+	/** Notice banner drawn by our own HUD renderer (renderGameplayHud) - not vanilla chat, so no risk of a version-mismatched API. */
+	static String noticeText = null;
+	static int noticeTicksLeft = 0;
+
 	static void stopMacroRuntimeState() {
 		stopMacroRuntimeState(null);
 	}
@@ -258,20 +262,17 @@ public final class SlimeFlowState {
 		}
 	}
 
-	/** Client-side only hint (not sent to the server) so a spam-run loop stopping is never silent. */
+	/** Queues a banner our own renderer shows for a few seconds (see SlimeFlowOverlay.renderGameplayHud). */
 	private static void notifySpamStopped(String profileName, String reason) {
-		Minecraft client = Minecraft.getInstance();
-
-		if (client == null || client.player == null) {
-			return;
-		}
-
-		String text = "SlimeFlow: spam run \"" + profileName + "\" stopped"
+		noticeText = "SlimeFlow: spam run \"" + profileName + "\" stopped"
 				+ (reason == null || reason.isEmpty() ? "." : " (" + reason + ").");
+		noticeTicksLeft = 20 * 10;
+	}
 
-		// overlay=false: goes to the chat log (stays on screen, scrollable), not the actionbar.
-		// This is purely client-side rendering - nothing is sent to the server.
-		client.player.displayClientMessage(net.minecraft.network.chat.Component.literal(text), false);
+	static void tickNotice() {
+		if (noticeTicksLeft > 0) {
+			noticeTicksLeft--;
+		}
 	}
 
 	static void clearHardStop() {

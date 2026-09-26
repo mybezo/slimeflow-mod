@@ -33,6 +33,7 @@ public class SlimeFlowClient implements ClientModInitializer {
 		SlimeFlowBackpackRefillRunner.tick(client);
 		SlimeFlowRunner.handleAutoRun(client);
 		SlimeFlowRunner.processClickQueue(client);
+		SlimeFlowState.tickNotice();
 		SlimeFlowStackRunner.tick(client);
 		SlimeFlowHud.tick(client);
 	}
