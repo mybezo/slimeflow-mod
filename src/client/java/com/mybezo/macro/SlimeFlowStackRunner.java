@@ -475,17 +475,35 @@ public final class SlimeFlowStackRunner {
 	}
 
 	private static boolean moveToTargetYAndReach(Minecraft client, BlockPos targetPos) {
+		Vec3 center = new Vec3(
+				targetPos.getX() + 0.5,
+				targetPos.getY() + 0.5,
+				targetPos.getZ() + 0.5
+		);
+
 		SlimeFlowStackTarget recordedTarget = getRecordedTarget(SlimeFlowState.stackIndex);
+		boolean horizontalReady = recordedTarget != null
+				? stayAtCurrentStandingPosition(client)
+				: (SlimeFlowState.hasStackSelection() ? stayAtCurrentStandingPosition(client) : true);
+
+		double distance = client.player.position().distanceToSqr(center);
+
+		// The actual interaction below is a synthetic hit result aimed straight at the block,
+		// not a real crosshair raycast - so once we're within reach, looking/standing "exactly
+		// right" doesn't matter. Stop adjusting Y the moment we're close enough, instead of
+		// always chasing the exact recorded stance (which caused an up-then-back-down wiggle).
+		if (horizontalReady && distance <= REACH_DISTANCE_SQR) {
+			client.options.keyJump.setDown(false);
+			client.options.keyShift.setDown(false);
+			smoothDescendTicks = 0;
+			return true;
+		}
+
 		double targetPlayerY = recordedTarget != null
 				? recordedTarget.playerY + getRecordedYStep(SlimeFlowState.stackIndex)
 				: targetPos.getY() + SlimeFlowState.stackPlayerYOffset;
 		double playerY = client.player.getY();
 		double deltaY = targetPlayerY - playerY;
-
-		boolean verticalReady = Math.abs(deltaY) <= Y_TOLERANCE;
-		boolean horizontalReady = recordedTarget != null
-				? stayAtCurrentStandingPosition(client)
-				: (SlimeFlowState.hasStackSelection() ? stayAtCurrentStandingPosition(client) : true);
 
 		if (deltaY > Y_TOLERANCE) {
 			client.options.keyJump.setDown(true);
@@ -505,24 +523,7 @@ public final class SlimeFlowStackRunner {
 			smoothDescendTicks = 0;
 		}
 
-		if (!verticalReady || !horizontalReady) {
-			return false;
-		}
-
-		Vec3 center = new Vec3(
-				targetPos.getX() + 0.5,
-				targetPos.getY() + 0.5,
-				targetPos.getZ() + 0.5
-		);
-
-		double distance = client.player.position().distanceToSqr(center);
-
-		if (distance > REACH_DISTANCE_SQR) {
-			return false;
-		}
-
-		releaseHorizontalMovement(client);
-		return true;
+		return false;
 	}
 
 	private static boolean stayAtCurrentStandingPosition(Minecraft client) {
@@ -561,6 +562,7 @@ public final class SlimeFlowStackRunner {
 		client.options.keyDown.setDown(forward < -threshold);
 		client.options.keyRight.setDown(right > threshold);
 		client.options.keyLeft.setDown(right < -threshold);
+		client.options.keySprint.setDown(forward > threshold);
 		return false;
 	}
 
@@ -674,6 +676,7 @@ public final class SlimeFlowStackRunner {
 		client.options.keyDown.setDown(forward < -threshold);
 		client.options.keyRight.setDown(right > threshold);
 		client.options.keyLeft.setDown(right < -threshold);
+		client.options.keySprint.setDown(forward > threshold);
 
 		return false;
 	}
@@ -697,6 +700,7 @@ public final class SlimeFlowStackRunner {
 		client.options.keyDown.setDown(false);
 		client.options.keyLeft.setDown(false);
 		client.options.keyRight.setDown(false);
+		client.options.keySprint.setDown(false);
 	}
 
 	private static void openBlock(Minecraft client, BlockPos pos) {
